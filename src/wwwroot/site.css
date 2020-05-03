@@ -1,0 +1,91 @@
+html,body, #st-full-pg {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+ }
+
+body {
+    display: flex;
+    flex-direction: column;
+    color: rgb(230, 230, 230);
+    background-color: rgb(26, 26, 26);
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+.headline {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+.time {
+    margin: 1rem;
+    padding: 1rem;
+    border-bottom: 0.1rem solid #d63031;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.group {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem;
+}
+
+.check-result {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0.4rem;
+    padding: 1rem;
+    border: 3px solid #00b894;
+    background-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 10px rgba(0, 0, 0, 1);
+}
+
+.check-result.error {
+    border: 3px solid #d63031;
+    animation: pulse-error 2s infinite;
+}
+
+.check-result.error .check-icon {
+    color: #d63031;
+}
+
+.check-icon {
+    color: #00b894;
+    font-size: 1.4rem;
+}
+
+.check-wrapper {
+    
+}
+
+.check-type {
+    margin: 0 0 0 1rem;
+}
+
+.check-message {
+    margin: 0 0 0 1rem;
+}
+
+@keyframes pulse-error {
+	0% {
+		border: 3px solid #d63031;
+	}
+
+	50% {
+		border: 3px solid rgb(54, 8, 0);
+	}
+
+	100% {
+		border: 3px solid #d63031;
+	}
+}
