@@ -1,3 +1,3 @@
 # Python Health Checker
 
-![Crypto Drive](doc/app.png)
+![Health Checker](doc/app.png)
