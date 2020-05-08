@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/__pycache__*": true,
+			"**/.noseids": true,
+			".pytest_cache": true,
+			".gitignore": true,
+			".vscode": false,
+		}
+	}
+}

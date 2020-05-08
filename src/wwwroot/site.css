@@ -12,16 +12,24 @@ body {
 }
 
 h1 {
+    font-size: 2rem;
+}
+
+h2 {
     font-size: 1.5rem;
 }
 
 .headline {
     display: flex;
     flex-direction: row;
-    justify-content: end;
+    justify-content: space-between;
 }
 
-.time {
+.headline h1 {
+    margin: 1rem;
+}
+
+.headline .time {
     margin: 1rem;
     padding: 1rem;
     border-bottom: 0.1rem solid #d63031;
@@ -52,11 +60,11 @@ h1 {
 
 .check-result.error {
     border: 3px solid #d63031;
-    animation: pulse-error 2s infinite;
+    animation: pulse-error-border 2s infinite;
 }
 
 .check-result.error .check-icon {
-    color: #d63031;
+    animation: pulse-error-color 2s infinite;
 }
 
 .check-icon {
@@ -73,12 +81,17 @@ h1 {
 }
 
 .check-message {
+    font-size: 0.9rem;
     margin: 0 0 0 1rem;
 }
 
-@keyframes pulse-error {
+.check-message:nth-child(2) {
+    margin-top: 0.5rem;
+}
+
+@keyframes pulse-error-border {
 	0% {
-		border: 3px solid #d63031;
+        border: 3px solid #d63031;
 	}
 
 	50% {
@@ -87,5 +100,19 @@ h1 {
 
 	100% {
 		border: 3px solid #d63031;
+	}
+}
+
+@keyframes pulse-error-color {
+	0% {
+        color: #d63031;
+	}
+
+	50% {
+        color: rgb(54, 8, 0);
+	}
+
+	100% {
+        color: #d63031;
 	}
 }

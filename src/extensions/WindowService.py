@@ -2,14 +2,15 @@ from typing import Dict
 
 import psutil
 
-from BaseTypes import Checker, CheckResult
+from ..BaseTypes import Checker, CheckResult
 
 
 class WindowServiceChecker(Checker):
-    Id: str = "windows-service"
+    Type: str = "windows-service"
     ServiceName: str
 
     def __init__(self, settings: Dict[str, str]):
+        super().__init__(settings)
         self.ServiceName = settings["name"]
 
     async def DoCheckAsync(self) -> CheckResult:
@@ -21,9 +22,9 @@ class WindowServiceChecker(Checker):
             service = service.as_dict()
 
             if service['status'] == 'running':
-                return CheckResult(name, False, "")
+                return self.Success(name)
             else:
-                return CheckResult(name, True, "The service is not started.")
+                return self.Error(name, "The service is not started.")
 
         except:
-            return CheckResult(name, True, "The service does not exist.")
+            return self.Error(name, "The service does not exist.")
