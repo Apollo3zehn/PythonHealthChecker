@@ -14,7 +14,7 @@ from src.NotifyManager import NotifyManager
 from src.Web import Controller
 
 
-async def HealthCheck(configFilePath):
+async def HealthCheck(configFilePath, interval):
 
     folderPath = Utils.PrepareLocalAppdata()
     htmlFilePath = os.path.join(folderPath, "index.html")
@@ -45,7 +45,7 @@ async def HealthCheck(configFilePath):
         except Exception as ex:
             print(ex)
 
-        await asyncio.sleep(10)
+        await asyncio.sleep(interval)
 
 def Serve(host: str, port: int):
 
@@ -79,6 +79,7 @@ async def Main():
     parser.add_argument("--config", type=str, default="testconfig.conf", help="The default config file is testconfig.conf.")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="The default host is 127.0.0.1")
     parser.add_argument("--port", type=int, default=80, help="The default port is 80.")
+    parser.add_argument("--interval", type=int, default=60, help="The check interval in seconds. Default is 60s.")
 
     args = parser.parse_args()
 
@@ -87,7 +88,7 @@ async def Main():
     thread.start()
 
     # run health checks
-    await HealthCheck(args.config)
+    await HealthCheck(args.config, args.interval)
     
 # run main task
 asyncio.run(Main())

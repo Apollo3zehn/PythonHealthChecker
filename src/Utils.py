@@ -51,7 +51,8 @@ def ThrottleNotifications(checkResult: Dict[str, List[CheckResult]]) -> Dict[str
     global _notificationState
 
     now = datetime.now()
-    _notificationState = { group:lastNotification for (group, lastNotification) in _notificationState.items() if (now - lastNotification).total_seconds() <= 30 }
+    _notificationState = { group:lastNotification for (group, lastNotification) in _notificationState.items() if (now - lastNotification).total_seconds() <= 86400 }
+    # _notificationState = { group:lastNotification for (group, lastNotification) in _notificationState.items() if (now - lastNotification).total_seconds() <= 30 }
     filteredCheckResult = {}
 
     for (group, results) in checkResult.items():
