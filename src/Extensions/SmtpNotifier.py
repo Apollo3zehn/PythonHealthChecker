@@ -76,7 +76,7 @@ class SmtpNotifier(Notifier):
     def _getGroupContent(self, group: str, checkResults: List[CheckResult]) -> str:
 
         joinChar = "\n"
-        contents = [self._getContent(checkResult) for checkResult in sorted(checkResults, key = lambda x: not x.HasError)]
+        contents = [self._getContent(checkResult) for checkResult in checkResults]
         renderFragment = f"""
 <h2>{group}</h2>
 <div class="group">

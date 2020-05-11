@@ -26,8 +26,6 @@ def _loadModule(extensionFile: str):
     importlib.reload(module)
 
     return module
-        
-
 
 def PrepareLocalAppdata() -> str:
 
