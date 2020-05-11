@@ -116,7 +116,7 @@ The methods ```GetName()``` and ```DoCheckAsync()``` are required and called by 
 
 On a successful check you can either call ```self.Success()``` or ```self.Success(<your success message>)```. When an error occured, call ```self.Error(<your error message>)``` instead.
 
-When you are done, copy the new python file into the ```./src/Extensions``` folder, it you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
+When you are done, copy the new python file into the ```./src/Extensions``` folder. If you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
 
 With your new check in place, you should update your configuration file like this to define one or multiple checks:
 
@@ -191,7 +191,7 @@ Make sure your class inherits from ```Notifier``` and calls the base class`s con
 
 The method ```NotifyAsync()``` is required and called by the base class when the notifiers are executed. The other methods are only there to help constructing a readable message from the check result.
 
-When you are done, copy the new python file into the ```./src/Extensions``` folder, it you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
+When you are done, copy the new python file into the ```./src/Extensions``` folder. If you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
 
 With your new notifier in place, you should update your configuration file like this to define one or multiple notifiers:
 
