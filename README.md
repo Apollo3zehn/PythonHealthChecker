@@ -118,7 +118,7 @@ On a successful check you can either call ```self.Success()``` or ```self.Succes
 
 When you are done, copy the new python file into the ```./src/Extensions``` folder. If you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
 
-With your new check in place, you should update your configuration file like this to define one or multiple checks:
+With your new checker in place, you should update your configuration file like this to define one or multiple checks:
 
 ```ini
 # notifications
@@ -193,7 +193,7 @@ The method ```NotifyAsync()``` is required and called by the base class when the
 
 When you are done, copy the new python file into the ```./src/Extensions``` folder. If you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
 
-With your new notifier in place, you should update your configuration file like this to define one or multiple notifiers:
+With your new notifier in place, you should update your configuration file like this to define one or multiple notifications:
 
 ```ini
 # notifications
