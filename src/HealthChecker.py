@@ -20,7 +20,7 @@ class HealthChecker:
 
     async def _doChecksAsync(self, checks) -> List[CheckResult]:
         checkers = [self._getChecker(check) for check in checks]
-        return [await checker.DoCheckAsync() for checker in checkers]
+        return [await checker.GetCheckResultAsync() for checker in checkers]
 
     def _getChecker(self, check) -> Checker:
         return next((checker(check) for checker in self.CheckerTypes if checker.Type == check["type"]), DefaultChecker(check))

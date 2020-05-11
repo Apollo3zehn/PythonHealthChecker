@@ -13,18 +13,19 @@ class WindowServiceChecker(Checker):
         super().__init__(settings)
         self.ServiceName = settings["name"]
 
-    async def DoCheckAsync(self) -> CheckResult:
+    def GetName(self) -> str:
+        return f"Window Service ({self.ServiceName})"
 
-        name = f"Window Service ({self.ServiceName})"
+    async def DoCheckAsync(self) -> CheckResult:
 
         try:
             service = psutil.win_service_get(self.ServiceName)
             service = service.as_dict()
 
             if service['status'] == 'running':
-                return self.Success(name)
+                return self.Success()
             else:
-                return self.Error(name, "The service is not started.")
+                return self.Error("The service is not started.")
 
         except:
-            return self.Error(name, "The service does not exist.")
+            return self.Error("The service does not exist.")

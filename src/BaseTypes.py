@@ -32,11 +32,21 @@ class Checker(ABC):
         else:
             self.Notifiers = []
 
-    def Success(self, name: str, message: str = "") -> CheckResult:
-        return CheckResult(name, False, message, self.Notifiers)
+    def Success(self, message: str = "") -> CheckResult:
+        return CheckResult(self.GetName(), False, message, self.Notifiers)
 
-    def Error(self, name: str, message: str) -> CheckResult:
-        return CheckResult(name, True, message, self.Notifiers)
+    def Error(self, message: str) -> CheckResult:
+        return CheckResult(self.GetName(), True, message, self.Notifiers)
+    
+    async def GetCheckResultAsync(self) -> CheckResult:
+        try:
+            return await self.DoCheckAsync()
+        except Exception as ex:
+            return self.Error(str(ex))
+
+    @abstractmethod
+    def GetName(self) -> str:
+        pass
 
     @abstractmethod
     async def DoCheckAsync(self) -> CheckResult:
@@ -50,8 +60,11 @@ class DefaultChecker(Checker):
         super().__init__(settings)
         self.Type = settings["type"]
 
+    def GetName(self) -> str:
+        return "Unknown"
+
     async def DoCheckAsync(self) -> CheckResult:
-        return self.Error("Unknown", f"Could not find checker '{self.Type}'.")
+        return self.Error(f"Could not find checker '{self.Type}'.")
 
 class Notifier(ABC):
 

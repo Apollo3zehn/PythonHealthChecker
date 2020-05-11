@@ -11,11 +11,13 @@ class PingV4Checker(Checker):
         super().__init__(settings)
         self.Address = settings["address"]
 
+    def GetName(self) -> str:
+        return f"Ping v4 ({self.Address})"
+
     async def DoCheckAsync(self) -> CheckResult:
         success = not os.system('ping %s -n 1 > nul 2>&1' % (self.Address,))
-        name = f"Ping v4 ({self.Address})"
 
         if success:
-            return self.Success(name)
+            return self.Success()
         else:
-            return self.Error(name, "Could not reach host.")
+            return self.Error("Could not reach host.")
