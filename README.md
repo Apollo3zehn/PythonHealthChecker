@@ -2,29 +2,28 @@
 
 The python health checker is a small app which regularly executes user-defined checks and optionally sends e-mail notifications when these checks fail. It makes it very easy to configure and extend it with new health checks.
 
-## 1 Web-UI
 ![Health Checker](doc/app.png)
 
-## 2 Prerequisites
+## 1 Prerequisites
 - CherryPy
 - psutil (for the windows-service checker)
 
-## 3 What happens on failed checks?
+## 2 What happens on failed checks?
 
-If the built-in smtp notifier is configured (see [testconfig.conf](testconfig.conf)), a mail is sent to the configured recipient. To avoid spamming mails when the state changes frequently, the notification frequency is throttled to allow only one notification per day and per check.
+If the built-in smtp notifier is configured (see [testconfig.conf](testconfig.conf)), a mail is sent to the configured recipient. To avoid spamming mails when the state changes frequently, the notification frequency is throttled to one notification per day and per check.
 
-## 4 How it works
+## 3 How it works
 
-### 4.1 Introduction
+### 3.1 Introduction
 In its default configuration, the app runs the checks every minute. A full check cycle consists of the following steps:
 - load the checker extensions (e.g. ping) and notifier extensions (e.g. smtp / e-mail)
 - execute all checks and collect their results (success vs. error)
 - pass the results to the configured notifiers
-- write the results into an html file
+- write the results into a static html file
 
 The app uses ```cherrypy``` to serve the generated html file and other static resources to the browser. The html file contains a very small javascript snippet to reload the web-page automatically every few seconds.
 
-### 4.2 Run it yourself
+### 3.2 Run it yourself
 To get started, clone this repo and start the app using python:
 
 ```ps
@@ -43,8 +42,11 @@ python ./Main.py --host 0.0.0.0 --port 8080 `
                  --interval 300 --config myconfig.conf
 ```
 
-### 4.3 Create your own config
-The app uses a simple config file, which should start with the shown ```# notifications``` section to setup the smtp / e-mail notification. This section is optional and only required when you would like to get notified by mail:
+### 3.3 Create your own config
+
+The sample configuration (```testconfig.conf```) is part of this project and only intended for testing purposes.
+
+It is recommended to create your own configuration file and pass the path to the app via ```--config <path to my config>```. This file should start with the shown ```# notifications``` section to setup the smtp / e-mail notification. This section is optional and only required when you would like to get notified by mail:
 
 ```ini
 # notifications
@@ -59,7 +61,7 @@ to = zzz@aaa.net
 subject = Health-Check Report
 ```
 
-No matter if you have a ```# notifications``` or not, the configuration file must contain a ```# checks``` section to configure all desired checks. In the sample configuration below, the first check is a ping to address ```www.test.org``` and the second check ensures that a certain windows service is available and started.
+No matter if you have a ```# notifications``` section or not, the configuration file should contain a ```# checks``` section to configure all desired checks. In the sample configuration below, the first check is a ping to address ```www.test.org``` and the second check ensures that a certain windows service is available and started.
 
 ```ini
 # checks
@@ -76,14 +78,14 @@ name = SysMain
 
 The line ```[Group 1]``` denotes the group name to help combining multiple checks into related units as you can see in the screenshot above.
 
-Both checks refer to the previously defined notifier named `my-notifier`. Whenever the check fails it is notified to all configured notifiers. You can comma-separate multiple notifiers like `my-notifer-1, my-notifier-2, ...`
+Both checks refer to the previously defined notifier named `my-notifier`. Whenever the check fails it is notified to all configured notifiers. You can comma-separate multiple notifiers like `my-notifer-1, my-notifier-2, ...`.
 
-When your configuration file is complete, you can pass it to the app with the ```--config``` option: ```python ./Main --config <config file>```
+When your configuration file is complete, you can pass it to the app: ```--config <path to my config>```
 
 > **NOTE:**  When you update the configuration file at runtime, it is applied automatically during the next health check.
 
-## 5 Create your own checker extension
-If you need other checks, you can implement it yourself easily. Here is an example how a checker could be implemented:
+## 4 Create your own checker extension
+If you need other checkers, you can implement them yourself easily. Here is an example how a very simple checker could look like:
 
 ```python
 from typing import Dict
@@ -110,13 +112,13 @@ class SampleChecker(Checker):
 
 ```
 
-Make sure your class inherits from ```Checker``` and calls the base class`s constructor (```super().__init__(settings)```). You can use the ```settings``` dictionary to get access to the options in the config file.
+Make sure your class inherits from ```Checker``` and calls the base class constructor (```super().__init__(settings)```). You can use the ```settings``` dictionary to get access to the options in the config file.
 
 The methods ```GetName()``` and ```DoCheckAsync()``` are required and called by the base class when the check is executed.
 
-On a successful check you can either call ```self.Success()``` or ```self.Success(<your success message>)```. When an error occured, call ```self.Error(<your error message>)``` instead.
+On a successful check you can either return ```self.Success()``` or ```self.Success(<your success message>)```. When the check fails, return ```self.Error(<your error message>)``` instead.
 
-When you are done, copy the new python file into the ```./src/Extensions``` folder. If you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
+When you are done, copy the new python file into the ```./src/Extensions``` folder. You should not (re)start the app to ensure the new extensions gets loaded. Alternatively, it will be loaded automatically during the next check cycle.
 
 With your new checker in place, you should update your configuration file like this to define one or multiple checks:
 
@@ -142,7 +144,7 @@ my-option2 = some value
 
 Please see the [testconfig.conf](testconfig.conf) file for a full sample.
 
-## 6 Create your own notifier extension
+## 5 Create your own notifier extension
 If you need another notifier instead of smtp, the process is similar to that of the checker extension.
 
 ```python
