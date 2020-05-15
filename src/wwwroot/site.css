@@ -58,6 +58,15 @@ h2 {
     box-shadow: 10px rgba(0, 0, 0, 1);
 }
 
+.check-result.warning {
+    border: 3px solid #f15900;
+    animation: pulse-warning-border 2s infinite;
+}
+
+.check-result.warning .check-icon {
+    animation: pulse-warning-color 2s infinite;
+}
+
 .check-result.error {
     border: 3px solid #d63031;
     animation: pulse-error-border 2s infinite;
@@ -87,6 +96,34 @@ h2 {
 
 .check-message:nth-child(2) {
     margin-top: 0.5rem;
+}
+
+@keyframes pulse-warning-border {
+	0% {
+        border: 3px solid #f15900;
+	}
+
+	50% {
+		border: 3px solid #301100;
+	}
+
+	100% {
+		border: 3px solid #f15900;
+	}
+}
+
+@keyframes pulse-warning-color {
+	0% {
+        color: #f15900;
+	}
+
+	50% {
+        color: #301100;
+	}
+
+	100% {
+        color: #f15900;
+	}
 }
 
 @keyframes pulse-error-border {

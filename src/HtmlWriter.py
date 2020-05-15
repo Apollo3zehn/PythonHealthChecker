@@ -2,18 +2,20 @@ import os
 from datetime import datetime
 from typing import Dict, List
 
-from .BaseTypes import CheckResult
+from .BaseTypes import CheckResult, CheckResultType
 
 
 class HtmlWriter:
 
-    IndexFilePath: str
+    _indexFilePath: str
+    _refreshInterval: int
 
-    def __init__(self, indexFilePath: str):
-        self.IndexFilePath = indexFilePath
+    def __init__(self, indexFilePath: str, refreshInterval: int):
+        self._indexFilePath = indexFilePath
+        self._refreshInterval = refreshInterval
 
-        if not os.path.isfile(self.IndexFilePath):
-            with open(self.IndexFilePath, "w") as file:
+        if not os.path.isfile(self._indexFilePath):
+            with open(self._indexFilePath, "w") as file:
                 file.write("""
 <h2>The checks are currently being executed, please wait a moment ...</h2>
 <script>
@@ -27,6 +29,7 @@ class HtmlWriter:
 
         contents = [self._getGroupContent(group, checkResults) for (group, checkResults) in result.items()]
         joinChar = "\n"
+
         renderFragment = f"""
 <!DOCTYPE html>
 <html>
@@ -49,18 +52,18 @@ class HtmlWriter:
     <script>
         setTimeout(function() {{
             location.reload();
-        }}, 10000);
+        }}, {self._refreshInterval * 1000});
     </script>
 </body>
 </html>
 """
 
-        with open(self.IndexFilePath, "w") as file:
+        with open(self._indexFilePath, "w") as file:
             file.write(renderFragment)
 
     def _getGroupContent(self, group: str, checkResults: List[CheckResult]) -> str:
         joinChar = "\n"
-        contents = [self._getContent(checkResult) for checkResult in sorted(checkResults, key = lambda x: not x.HasError)]
+        contents = [self._getContent(checkResult) for checkResult in checkResults]
         renderFragment = f"""
 <h2>{group}</h2>
 <div class="group">
@@ -70,13 +73,24 @@ class HtmlWriter:
         return renderFragment
 
     def _getContent(self, checkResult: CheckResult) -> str:
-        
-        if checkResult.HasError:
+
+        warning = " "
+        error = " "
+
+        if checkResult.ResultType == CheckResultType.Success:
+            content = f'<div class="check-icon"><i class="fas fa-check"></i></div>'
+
+        elif checkResult.ResultType == CheckResultType.Warning:
+            warning = " warning"
+            content = f'<div class="check-icon"><i class="fas fa-exclamation-circle"></i></div>'
+
+        elif checkResult.ResultType == CheckResultType.Error:
             error = " error"
             content = f'<div class="check-icon"><i class="fas fa-exclamation-circle"></i></div>'
+
         else:
-            error = " "
-            content = f'<div class="check-icon"><i class="fas fa-check"></i></div>'
+            raise Exception(f"The check result type '{checkResult.ResultType}' is unknown")
+            
 
         content += '<div class="check-wrapper">'
         content += f'<div class="check-type">{checkResult.Name}</div>'
@@ -87,7 +101,7 @@ class HtmlWriter:
         content += '</div>'
 
         renderFragment = f"""
-<div class="check-result{error}">
+<div class="check-result{warning}{error}">
     {content}
 </div>
 """

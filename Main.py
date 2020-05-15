@@ -14,11 +14,11 @@ from src.NotifyManager import NotifyManager
 from src.Web import Controller
 
 
-async def HealthCheck(configFilePath, interval):
+async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int):
 
     folderPath = Utils.PrepareLocalAppdata()
     htmlFilePath = os.path.join(folderPath, "index.html")
-    htmlWriter = HtmlWriter(htmlFilePath)
+    htmlWriter = HtmlWriter(htmlFilePath, refreshInterval)
 
     while True:
 
@@ -42,10 +42,11 @@ async def HealthCheck(configFilePath, interval):
 
             # update html
             htmlWriter.WriteResult(result)
+            
         except Exception as ex:
             print(ex)
 
-        await asyncio.sleep(interval)
+        await asyncio.sleep(checkInterval)
 
 def Serve(host: str, port: int):
 
@@ -79,7 +80,8 @@ async def Main():
     parser.add_argument("--config", type=str, default="testconfig.conf", help="The default config file is testconfig.conf.")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="The default host is 127.0.0.1")
     parser.add_argument("--port", type=int, default=80, help="The default port is 80.")
-    parser.add_argument("--interval", type=int, default=60, help="The check interval in seconds. Default is 60s.")
+    parser.add_argument("--check-interval", type=int, default=60, help="The check interval in seconds. Default is 60s.")
+    parser.add_argument("--refresh-interval", type=int, default=15, help="The page refresh interval in seconds. Default is 15s.")
 
     args = parser.parse_args()
 
@@ -88,7 +90,7 @@ async def Main():
     thread.start()
 
     # run health checks
-    await HealthCheck(args.config, args.interval)
+    await HealthCheck(args.config, args.check_interval, args.refresh_interval)
     
 # run main task
 asyncio.run(Main())

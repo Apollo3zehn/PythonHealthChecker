@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Dict, List
 
 
@@ -10,17 +11,26 @@ class Config:
         self.Notifiers = notifiers
         self.Checkers = checkers
 
+class CheckResultType(Enum):
+    Success = 1
+    Warning = 2
+    Error = 3
+
 class CheckResult:
     Name: str
-    HasError: bool
+    ResultType: CheckResultType
     Message: str
     Notifiers: List[str]
 
-    def __init__(self, name: str, hasError: bool, message: str, notifiers: List[str]):
+    def __init__(self, name: str, resultType: CheckResultType, message: str, notifiers: List[str]):
         self.Name = name
-        self.HasError = hasError
+        self.ResultType = resultType
         self.Message = message
         self.Notifiers = notifiers
+
+    @property
+    def HasError(self):
+        return self.ResultType == CheckResultType.Error
 
 class Checker(ABC):
 
@@ -33,10 +43,13 @@ class Checker(ABC):
             self.Notifiers = []
 
     def Success(self, message: str = "") -> CheckResult:
-        return CheckResult(self.GetName(), False, message, self.Notifiers)
+        return CheckResult(self.GetName(), CheckResultType.Success, message, self.Notifiers)
+
+    def Warning(self, message: str) -> CheckResult:
+        return CheckResult(self.GetName(), CheckResultType.Warning, message, self.Notifiers)
 
     def Error(self, message: str) -> CheckResult:
-        return CheckResult(self.GetName(), True, message, self.Notifiers)
+        return CheckResult(self.GetName(), CheckResultType.Error, message, self.Notifiers)
     
     async def GetCheckResultAsync(self) -> CheckResult:
         try:
