@@ -3,13 +3,16 @@ import inspect
 import os
 import platform
 import sys
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
-from .BaseTypes import CheckResult
+from .BaseTypes import CheckResult, NotificationState
 
-_notificationState: Dict[int, datetime] = {}
+_lastRunId: str
+_stageMap: Dict[str, NotificationState] = {}
+_muteMap: Dict[str, NotificationState] = {}
 
 def LoadExtensions() -> List:
     extensionFolderPath = "src/Extensions"
@@ -46,13 +49,19 @@ def PrepareLocalAppdata() -> str:
 
 def ThrottleNotifications(checkResult: Dict[str, List[CheckResult]]) -> Dict[str, List[CheckResult]]:
 
-    global _notificationState
+    global _lastRunId
+    global _stageMap
+    global _muteMap
 
     now = datetime.now()
-    _notificationState = { group:lastNotification for (group, lastNotification) in _notificationState.items() if now.date() == lastNotification.date() }
-    # _notificationState = { group:lastNotification for (group, lastNotification) in _notificationState.items() if (now - lastNotification).total_seconds() <= 30 }
+    currentRunId = uuid.uuid4()
     filteredCheckResult = {}
 
+    # remove notifications older than 1 day
+    _stageMap = { group:lastNotification for (group, lastNotification) in _stageMap.items() if now.date() == lastNotification.Date }
+    _muteMap = { group:lastNotification for (group, lastNotification) in _muteMap.items() if now.date() == lastNotification.Date }
+
+    # for each group
     for (group, results) in checkResult.items():
 
         filteredResults = []
@@ -60,13 +69,26 @@ def ThrottleNotifications(checkResult: Dict[str, List[CheckResult]]) -> Dict[str
         for checkResult in results:
             
             key = f"{group}/{checkResult.Name}/{checkResult.Message}"
+            notificationState = NotificationState(currentRunId, now.date())
 
-            # if check error occured recently
-            if checkResult.HasError and not key in _notificationState:
-                filteredResults.append(checkResult)
-                _notificationState[key] = now
+            # if check failed
+            if checkResult.HasError:
+
+                # if failed check was not yet notified today
+                if not key in _muteMap:
+
+                    # if check failed twice in a row
+                    if key in _stageMap and _stageMap[key].RunId == _lastRunId:
+                        filteredResults.append(checkResult)
+                        _muteMap[key] = notificationState
+                        _stageMap.pop(key)
+
+                    else:
+                        _stageMap[key] = notificationState                   
 
         if any(filteredResults):
             filteredCheckResult[group] = filteredResults
+
+    _lastRunId = currentRunId
 
     return filteredCheckResult

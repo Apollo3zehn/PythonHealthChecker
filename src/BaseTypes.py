@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import date
 from enum import Enum
 from typing import Dict, List
 
@@ -89,3 +90,11 @@ class Notifier(ABC):
     @abstractmethod
     async def NotifyAsync(self):
         pass
+
+class NotificationState():
+    RunId: str
+    Date: date
+
+    def __init__(self, runId: str, date: date):
+        self.RunId = runId
+        self.Date = date

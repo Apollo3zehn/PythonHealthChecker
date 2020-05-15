@@ -10,15 +10,15 @@ The python health checker is a small app which regularly executes user-defined c
 
 ## 2 What happens on failed checks?
 
-If the built-in smtp notifier is configured (see [testconfig.conf](testconfig.conf)), a mail is sent to the configured recipient. To avoid spamming mails when the state changes frequently, the notification frequency is throttled to one notification per day and per check.
+If the built-in smtp notifier is configured (see [testconfig.conf](testconfig.conf)) and a check fails twice in a row, a mail is sent to the configured recipient. To avoid spamming mails when the state changes frequently, the notification frequency is throttled to one notification per day and per check.
 
 ## 3 How it works
 
 ### 3.1 Introduction
 In its default configuration, the app runs the checks every minute. A full check cycle consists of the following steps:
 - load the checker extensions (e.g. ping) and notifier extensions (e.g. smtp / e-mail)
-- execute all checks and collect their results (success vs. error)
-- pass the results to the configured notifiers
+- execute all checks and collect their results (success vs. warning vs. error)
+- pass the failed check results to the configured notifiers
 - write the results into a static html file
 
 The app uses ```cherrypy``` to serve the generated html file and other static resources to the browser. The html file contains a very small javascript snippet to reload the web-page automatically every few seconds.
@@ -33,13 +33,16 @@ python ./Main.py
 
 This will run the app with default settings, i.e:
 - listen on address http://localhost:80
+- browser refresh every 15 seconds
 - one check per minute
 - load the test config file ```testconfig.conf```
 
 You can override the defaults by passing one or more of the following arguments to python:
 ```ps
 python ./Main.py --host 0.0.0.0 --port 8080 `
-                 --interval 300 --config myconfig.conf
+                 --check-interval 300 `
+                 --refresh-interval 60 `
+                 --config myconfig.conf
 ```
 
 ### 3.3 Create your own config
@@ -107,6 +110,8 @@ class SampleChecker(Checker):
     async def DoCheckAsync(self) -> CheckResult:
         if self.MyOption1 == "some value":
             return self.Success()
+        elif self.MyOption1 == "some other value":
+            return self.Warning(f"Attention, value '{self.MyOption1}' might harm you.")
         else:
             return self.Error(f"The value '{self.MyOption1}' is invalid.")
 
