@@ -22,7 +22,7 @@ class LatestDriveItem(Checker):
         self.AgeSecondsError = int(settings["age-seconds-error"])
 
     def GetName(self) -> str:
-        return f"Last drive item ({self.Glob})"
+        return f"Latest drive item ({self.Glob})"
 
     async def DoCheckAsync(self) -> CheckResult:
         driveItems = glob.glob(self.Glob, recursive=self.Recursive)
