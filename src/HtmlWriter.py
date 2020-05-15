@@ -82,7 +82,7 @@ class HtmlWriter:
 
         elif checkResult.ResultType == CheckResultType.Warning:
             warning = " warning"
-            content = f'<div class="check-icon"><i class="fas fa-exclamation-circle"></i></div>'
+            content = f'<div class="check-icon"><i class="fas fa-exclamation-triangle"></i></div>'
 
         elif checkResult.ResultType == CheckResultType.Error:
             error = " error"
