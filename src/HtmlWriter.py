@@ -91,6 +91,8 @@ class HtmlWriter:
         else:
             raise Exception(f"The check result type '{checkResult.ResultType}' is unknown")
             
+        if not any(checkResult.Notifiers):
+            content = f'<div class="check-icon"><i class="fas fa-volume-mute"></i></div>'
 
         content += '<div class="check-wrapper">'
         content += f'<div class="check-type">{checkResult.Name}</div>'
