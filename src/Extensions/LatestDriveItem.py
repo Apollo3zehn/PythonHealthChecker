@@ -17,7 +17,7 @@ class LatestDriveItem(Checker):
         super().__init__(settings)
 
         self.Glob = settings["glob"]
-        self.Recursive = bool(settings["recursive"])
+        self.Recursive = settings["recursive"].lower() == 'true'
         self.AgeSecondsWarning = int(settings["age-seconds-warning"])
         self.AgeSecondsError = int(settings["age-seconds-error"])
 
