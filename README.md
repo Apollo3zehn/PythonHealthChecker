@@ -6,7 +6,8 @@ The python health checker is a small app which regularly executes user-defined c
 
 ## 1 Prerequisites
 - CherryPy
-- psutil (for the windows-service checker)
+- aiohttp
+- psutil (for the windows-service checker, optional)
 
 ## 2 What happens on failed checks?
 

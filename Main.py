@@ -3,18 +3,20 @@ import asyncio
 import os
 import sys
 from threading import Thread
+from typing import Dict
 
 import cherrypy
 
 from src import Utils
+from src.BaseTypes import CacheEntry
 from src.ConfigReader import ConfigReader
 from src.HealthChecker import HealthChecker
 from src.HtmlWriter import HtmlWriter
 from src.NotifyManager import NotifyManager
-from src.Web import Controller
+from src.Web import Application, API
 
 
-async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int):
+async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int, cache: Dict[str, CacheEntry]):
 
     folderPath = Utils.PrepareLocalAppdata()
     htmlFilePath = os.path.join(folderPath, "index.html")
@@ -30,7 +32,7 @@ async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: 
             extensions = Utils.LoadExtensions()
 
             # check health
-            healthChecker = HealthChecker(config, extensions)
+            healthChecker = HealthChecker(config, extensions, cache)
             result = await healthChecker.CheckHealthAsync()
 
             # throttle notifications
@@ -48,19 +50,13 @@ async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: 
 
         await asyncio.sleep(checkInterval)
 
-def Serve(host: str, port: int):
+def Serve(host: str, port: int, cache: Dict[str, CacheEntry]):
 
-    # configure CherryPy
+    # mount "/"
     folderPath = Utils.PrepareLocalAppdata()
     htmlFilePath = os.path.join(folderPath, "index.html")
 
-    config = {
-        "global": {
-            "engine.autoreload.on" : False,
-            "log.screen": False,
-            "server.socket_host": host,
-            "server.socket_port": port
-        },
+    appConfig = {
         "/": {
             "tools.staticdir.root": os.path.abspath(os.getcwd())
         },
@@ -69,9 +65,30 @@ def Serve(host: str, port: int):
             "tools.staticdir.dir": "./src/wwwroot/"
         }
     }
-    
+ 
+    cherrypy.tree.mount(Application(htmlFilePath), "/", appConfig)
+
+    # mount "/api/checkresult"
+    apiConfig = {
+        "/": {
+            # the api uses restful method dispatching
+            "request.dispatch": cherrypy.dispatch.MethodDispatcher()
+        }   
+    }
+
+    cherrypy.tree.mount(API(cache), "/api/checkresult", apiConfig)
+
+    # run
     print(f"Starting web server on address {host}:{port}.")
-    cherrypy.quickstart(Controller(htmlFilePath), "/", config)
+
+    cherrypy.config.update({
+        "engine.autoreload.on" : False,
+        "log.screen": False,
+        "server.socket_host": host,
+        "server.socket_port": port
+    })
+    cherrypy.engine.start()
+    cherrypy.engine.block()
 
 async def Main():
 
@@ -85,12 +102,15 @@ async def Main():
 
     args = parser.parse_args()
 
+    # create check result cache
+    cache = {}
+
     # run web server
-    thread = Thread(target = Serve, args=(args.host, args.port,))
+    thread = Thread(target=Serve, args=(args.host, args.port, cache,))
     thread.start()
 
     # run health checks
-    await HealthCheck(args.config, args.check_interval, args.refresh_interval)
+    await HealthCheck(args.config, args.check_interval, args.refresh_interval, cache)
     
 # run main task
 asyncio.run(Main())

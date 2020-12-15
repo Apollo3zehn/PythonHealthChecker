@@ -1,7 +1,5 @@
 from typing import Dict
 
-import psutil
-
 from ..BaseTypes import Checker, CheckResult
 
 
@@ -19,6 +17,11 @@ class WindowServiceChecker(Checker):
     async def DoCheckAsync(self) -> CheckResult:
 
         try:
+            try: 
+                import psutil
+            except:
+                return self.Error("Unable to import module 'psutil'.")
+
             service = psutil.win_service_get(self.ServiceName)
             service = service.as_dict()
 

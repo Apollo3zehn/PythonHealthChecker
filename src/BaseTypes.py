@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from typing import Dict, List
 
@@ -36,8 +36,13 @@ class CheckResult:
 class Checker(ABC):
 
     Notifiers: List[str]
+    Settings: Dict[str, str]
 
     def __init__(self, settings: Dict[str, str]):
+
+        self.Settings = settings
+
+        # notifiers
         if "notifiers" in settings:
             self.Notifiers = [notifier.strip() for notifier in settings["notifiers"].split(",")]
         else:
@@ -98,3 +103,15 @@ class NotificationState():
     def __init__(self, runId: str, date: date):
         self.RunId = runId
         self.Date = date
+
+class CacheEntry:
+    CheckResult: CheckResult
+    Received: datetime
+
+    def __init__(self, checkResult: CheckResult, received: datetime):
+        self.CheckResult = checkResult
+        self.Received = received
+
+    @property
+    def AgeMinutes(self):
+        return (datetime.now() - self.Received).days * 1440
