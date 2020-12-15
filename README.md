@@ -221,4 +221,56 @@ my-option2 = some other value
 ...
 ```
 
+## 6 External checks
+
+It may become necessary to make checks on another device and send the results to the health checker instance. For these cases, a REST API is available at `http://<health-checker-address>/api/checkresults`. You can use any program or script to push check results to the health checker. 
+
+### 6.1 Powershell
+For example using `powershell`:
+
+```powershell
+# First, do your checks. Then send them to the health checker:
+
+$checkResult = @{
+    identifier  = "MyIdentifier" # explained below
+    name        = "The title of my check."
+    message     = "The check has been successful"
+    resultType  = 1 # 1 = Success, 2 = Warning, 3 = Error
+}
+
+$targetHostName = 'http://<health-checker-address>'
+
+# send the result to the health checker
+Invoke-RestMethod `
+    -Uri "$targetHostName/api/checkresults" `
+    -Method POST `
+    -Body ($checkResult | ConvertTo-Json -Depth 3) `
+    -ContentType 'application/json'
+```
+
+The `identifier` is a unique string to identify the check result. The health checker will only pick up check results with known identifiers. To make these known to the health checker, configure a new check of type `external-cache` and provide the `identifier` and `max-age-minutes` values:
+
+```ini
+# checks
+[Group 1]
+type = external-cache
+identifier = MyIdentifier
+max-age-minutes = 10
+```
+
+### 6.2 Second Health Checker
+
+It is also possible to run a second health checker and push its result to the main health checker. In that case define the `external-cache` check(s) as described previously in your main health checker and then just add the following values to any check in the second health checker that should share its result:
+
+```ini
+# checks
+[Group 1]
+type = ping-v4
+...
+share-method = http-post
+share-target = http://<main-health-checker-address>/api/checkresult
+share-id = "MyIdentifier"
+```
+
+___
 Please see the [testconfig.conf](testconfig.conf) file for a full sample.
