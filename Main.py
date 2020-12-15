@@ -76,7 +76,7 @@ def Serve(host: str, port: int, cache: Dict[str, CacheEntry]):
         }   
     }
 
-    cherrypy.tree.mount(API(cache), "/api/checkresult", apiConfig)
+    cherrypy.tree.mount(API(cache), "/api/checkresults", apiConfig)
 
     # run
     print(f"Starting web server on address {host}:{port}.")

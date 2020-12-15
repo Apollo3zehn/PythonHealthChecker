@@ -29,6 +29,7 @@ class ExternalCacheChecker(Checker):
             cacheEntry = self.Cache[self.Identifier]
             
             if cacheEntry.AgeMinutes <= self.MaxAgeMinutes:
+                cacheEntry.CheckResult.Notifiers = self.Notifiers
                 return cacheEntry.CheckResult
                 
             return self.Warning("Last check result too old.")
