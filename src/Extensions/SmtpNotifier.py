@@ -30,29 +30,26 @@ class SmtpNotifier(Notifier):
 
     async def NotifyAsync(self, checkResult: Dict[str, List[CheckResult]]):
 
-        if self.Security == "starttls":
+        with smtplib.SMTP(self.Server, self.Port) as server:
 
-            context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+            try:
 
-            with smtplib.SMTP(self.Server, self.Port) as server:
-                try:
+                if self.Security == "starttls":
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
                     server.starttls(context=context)
                     server.login(self.From, self.Password)
 
-                    message = EmailMessage()
-                    message.set_content("abc")
-                    message['Subject'] = self.Subject
-                    message['From'] = self.From
-                    message['To'] = self.To
-                    message.add_alternative(self.GetHtmlMessage(checkResult), subtype='html')
+                message = EmailMessage()
+                message.set_content("abc")
+                message['Subject'] = self.Subject
+                message['From'] = self.From
+                message['To'] = self.To
+                message.add_alternative(self.GetHtmlMessage(checkResult), subtype='html')
 
-                    server.send_message(message)
+                server.send_message(message)
 
-                except Exception as e:
-                    print(e)
-                    
-        else:
-            raise Exception(f"The security type '{self.Security}' is not supported.")
+            except Exception as e:
+                print(e)
 
     def GetHtmlMessage(self, result: Dict[str, List[CheckResult]]) -> str:
 
