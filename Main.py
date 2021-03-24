@@ -92,6 +92,8 @@ def Serve(host: str, port: int, cache: Dict[str, CacheEntry]):
 
 async def Main():
 
+    os.chdir(pathlib.Path(__file__).parent.absolute())
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--config", type=str, default="testconfig.conf", help="The default config file is testconfig.conf.")
