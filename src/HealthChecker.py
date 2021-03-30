@@ -1,6 +1,7 @@
 import inspect
 import json
 import os
+from datetime import datetime
 from typing import Dict, List
 
 import aiohttp
@@ -42,12 +43,17 @@ class HealthChecker:
         # special handling for ExternalCacheChecker
         for checker in checkers:
             if type(checker).__name__ == "ExternalCacheChecker": # not working: type(checker) is ExternalCacheChecker
-                checker.SetCache(self.Cache)
+                checker.SetCacheEntry(self.Cache.get(checker.Identifier, None))
 
         # go
         results = [await checker.GetCheckResultAsync() for checker in checkers]
 
         for i, checker in enumerate(checkers):
+
+            # put results into cache (where associated checker has an identifier)
+            if "identifier" in checker.Settings:
+                self.Cache[checker.Settings["identifier"]] = CacheEntry(results[i], datetime.now())
+
             # share result?
             if "share-method" in checker.Settings:
                 await self._shareResultAsync(checker.Settings, results[i])

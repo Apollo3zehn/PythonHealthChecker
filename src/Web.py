@@ -25,6 +25,25 @@ class API:
     def __init__(self, cache: Dict[str, CacheEntry]):
         self.Cache = cache
     
+    def GET(self, identifier):
+
+        if identifier in self.Cache:
+
+            params = {
+                "identifier": identifier,
+                "name": self.Cache[identifier].CheckResult.Name,
+                "resultType": self.Cache[identifier].CheckResult.ResultType.value,
+                "message": self.Cache[identifier].CheckResult.Message,
+            }
+
+            checkResultJson = json.dumps(params)
+            cherrypy.response.headers['Content-Type'] = 'application/json'
+
+            return checkResultJson.encode('utf8')
+
+        else:
+            raise cherrypy.HTTPError(status=404, message="The requested check result was not found.")
+
     def POST(self):
         # binary -> json
         rawData = cherrypy.request.body.read(int(cherrypy.request.headers['Content-Length']))

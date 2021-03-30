@@ -106,12 +106,12 @@ class NotificationState():
 
 class CacheEntry:
     CheckResult: CheckResult
-    Received: datetime
+    Created: datetime
 
-    def __init__(self, checkResult: CheckResult, received: datetime):
+    def __init__(self, checkResult: CheckResult, created: datetime):
         self.CheckResult = checkResult
-        self.Received = received
+        self.Created = created
 
     @property
     def AgeMinutes(self):
-        return (datetime.now() - self.Received).days * 1440
+        return (datetime.now() - self.Created).days * 1440

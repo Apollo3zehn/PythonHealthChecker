@@ -9,28 +9,26 @@ class ExternalCacheChecker(Checker):
     Identifier: str
     MaxAgeMinutes: int
 
-    Cache: Dict[str, CacheEntry]
+    CacheEntry: CacheEntry
 
     def __init__(self, settings: Dict[str, str]):
         super().__init__(settings)
         self.Identifier = settings["identifier"]
         self.MaxAgeMinutes = int(settings["max-age-minutes"])
 
-    def SetCache(self, cache: Dict[str, CacheEntry]):
-        self.Cache = cache
+    def SetCacheEntry(self, cacheEntry: CacheEntry):
+        self.CacheEntry = cacheEntry
 
     def GetName(self) -> str:
         return self.Identifier
 
     async def DoCheckAsync(self) -> CheckResult:
         
-        if self.Cache is not None and self.Identifier in self.Cache:
+        if self.CacheEntry is not None:
 
-            cacheEntry = self.Cache[self.Identifier]
-            
-            if cacheEntry.AgeMinutes <= self.MaxAgeMinutes:
+            if self.CacheEntry.AgeMinutes <= self.MaxAgeMinutes:
                 cacheEntry.CheckResult.Notifiers = self.Notifiers
-                return cacheEntry.CheckResult
+                return self.CacheEntry.CheckResult
                 
             return self.Warning("Last check result too old.")
 

@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import os
+import pathlib
 import sys
 from threading import Thread
 from typing import Dict
@@ -13,7 +14,7 @@ from src.ConfigReader import ConfigReader
 from src.HealthChecker import HealthChecker
 from src.HtmlWriter import HtmlWriter
 from src.NotifyManager import NotifyManager
-from src.Web import Application, API
+from src.Web import API, Application
 
 
 async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int, cache: Dict[str, CacheEntry]):
@@ -50,6 +51,13 @@ async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: 
 
         await asyncio.sleep(checkInterval)
 
+def handle_error():
+    from cherrypy import _cperror
+    cherrypy.response.status = 500
+    cherrypy.response.body = [
+        f"<html><body>{_cperror.format_exc()}</body></html>"
+    ]
+
 def Serve(host: str, port: int, cache: Dict[str, CacheEntry]):
 
     # mount "/"
@@ -72,7 +80,9 @@ def Serve(host: str, port: int, cache: Dict[str, CacheEntry]):
     apiConfig = {
         "/": {
             # the api uses restful method dispatching
-            "request.dispatch": cherrypy.dispatch.MethodDispatcher()
+            "tools.encode.on": True,
+            "request.dispatch": cherrypy.dispatch.MethodDispatcher(),
+            'request.error_response': handle_error
         }   
     }
 

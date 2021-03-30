@@ -260,6 +260,7 @@ max-age-minutes = 10
 
 ### 6.2 Second Health Checker
 
+#### 6.2.1 Push
 It is also possible to run a second health checker and push its result to the main health checker. In that case define the `external-cache` check(s) as described previously in your main health checker and then just add the following values to any check in the second health checker that should share its result:
 
 ```ini
@@ -274,3 +275,20 @@ share-id = "MyIdentifier"
 
 ___
 Please see the [testconfig.conf](testconfig.conf) file for a full sample.
+
+#### 6.2.2 Pull
+If pushing is not possible, pull is another way to get the data. In your second health checker add a check entry like this:
+
+```ini
+type = <any type>
+identifier = <unique-identifier>
+<more properties> = ...
+```
+
+And in your main health checker, use the unique identifier specified before and set the url to the second health checker:
+
+```ini
+type = query-federated
+url = http://localhost:8080
+remote-identifier = <unique-identifier>
+```
