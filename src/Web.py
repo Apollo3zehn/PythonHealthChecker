@@ -4,7 +4,7 @@ from typing import Dict
 
 import cherrypy
 
-from .BaseTypes import CacheEntry, CheckResult, CheckResultType
+from .BaseTypes import CheckResult, CheckResultType
 
 
 class Application:
@@ -20,23 +20,26 @@ class Application:
 
 @cherrypy.expose
 class API:
-    Cache: Dict[str, CacheEntry]
+    Cache: Dict[str, CheckResult]
 
-    def __init__(self, cache: Dict[str, CacheEntry]):
+    def __init__(self, cache: Dict[str, CheckResult]):
         self.Cache = cache
     
     def GET(self, identifier):
 
         if identifier in self.Cache:
 
-            params = {
+            checkResult = self.Cache[identifier]
+
+            checkResultDict = {
                 "identifier": identifier,
-                "name": self.Cache[identifier].CheckResult.Name,
-                "resultType": self.Cache[identifier].CheckResult.ResultType.value,
-                "message": self.Cache[identifier].CheckResult.Message,
+                "name": checkResult.Name,
+                "resultType": checkResult.ResultType.value,
+                "message": checkResult.Message,
+                "created": checkResult.Created.isoformat()
             }
 
-            checkResultJson = json.dumps(params)
+            checkResultJson = json.dumps(checkResultDict)
             cherrypy.response.headers['Content-Type'] = 'application/json'
 
             return checkResultJson.encode('utf8')
@@ -59,4 +62,4 @@ class API:
         checkResult = CheckResult(name, resultType, message, notifiers)
 
         # populate cache
-        self.Cache[identifier] = CacheEntry(checkResult, datetime.now())
+        self.Cache[identifier] = checkResult

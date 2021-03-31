@@ -285,10 +285,27 @@ identifier = <unique-identifier>
 <more properties> = ...
 ```
 
-And in your main health checker, use the unique identifier specified before and set the url to the second health checker:
+And in your main health checker, use the unique identifier specified before, set the url to the second health checker and provide a value for the `max-age-minutes` parameter:
 
 ```ini
 type = query-federated
 url = http://localhost:8080
 remote-identifier = <unique-identifier>
+max-age-minutes = 10
+```
+
+Instead of a `http(s)` URI you can also provide a `file` URI:
+- relative path: `file:./checkresult.json`
+- absolute path (Linux): `file:////home/checkresult.json`)
+- absolute path (Unix): `file:///C:\checkresult.json`)
+
+A JSON-based check result file should look like this:
+```json
+{
+    "identifier": "my-json-identifier",
+    "name": "MyJsonCheck",
+    "resultType": 1,
+    "message": "MyJsonCheck was successful",
+    "created": "2021-03-31T14:37:47.337661+00:00"
+}
 ```

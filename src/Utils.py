@@ -10,7 +10,7 @@ from typing import Dict, List
 
 from .BaseTypes import CheckResult, NotificationState
 
-_lastRunId: str
+_lastRunId: str = "undefined"
 _stageMap: Dict[str, NotificationState] = {}
 _muteMap: Dict[str, NotificationState] = {}
 

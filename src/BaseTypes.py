@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Dict, List
 
@@ -22,12 +22,18 @@ class CheckResult:
     ResultType: CheckResultType
     Message: str
     Notifiers: List[str]
+    Created: datetime
 
     def __init__(self, name: str, resultType: CheckResultType, message: str, notifiers: List[str]):
         self.Name = name
         self.ResultType = resultType
         self.Message = message
         self.Notifiers = notifiers
+        self.Created = datetime.utcnow().replace(tzinfo=timezone.utc)
+
+    @property
+    def AgeMinutes(self):
+        return (datetime.utcnow().replace(tzinfo=timezone.utc) - self.Created).days * 1440
 
     @property
     def HasError(self):
@@ -103,15 +109,3 @@ class NotificationState():
     def __init__(self, runId: str, date: date):
         self.RunId = runId
         self.Date = date
-
-class CacheEntry:
-    CheckResult: CheckResult
-    Created: datetime
-
-    def __init__(self, checkResult: CheckResult, created: datetime):
-        self.CheckResult = checkResult
-        self.Created = created
-
-    @property
-    def AgeMinutes(self):
-        return (datetime.now() - self.Created).days * 1440

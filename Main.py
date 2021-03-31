@@ -9,7 +9,7 @@ from typing import Dict
 import cherrypy
 
 from src import Utils
-from src.BaseTypes import CacheEntry
+from src.BaseTypes import CheckResult
 from src.ConfigReader import ConfigReader
 from src.HealthChecker import HealthChecker
 from src.HtmlWriter import HtmlWriter
@@ -17,7 +17,7 @@ from src.NotifyManager import NotifyManager
 from src.Web import API, Application
 
 
-async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int, cache: Dict[str, CacheEntry]):
+async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int, cache: Dict[str, CheckResult]):
 
     folderPath = Utils.PrepareLocalAppdata()
     htmlFilePath = os.path.join(folderPath, "index.html")
@@ -58,7 +58,7 @@ def handle_error():
         f"<html><body>{_cperror.format_exc()}</body></html>"
     ]
 
-def Serve(host: str, port: int, cache: Dict[str, CacheEntry]):
+def Serve(host: str, port: int, cache: Dict[str, CheckResult]):
 
     # mount "/"
     folderPath = Utils.PrepareLocalAppdata()

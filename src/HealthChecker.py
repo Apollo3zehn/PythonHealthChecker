@@ -6,7 +6,7 @@ from typing import Dict, List
 
 import aiohttp
 
-from .BaseTypes import (CacheEntry, Checker, CheckResult, Config,
+from .BaseTypes import (Checker, CheckResult, Config,
                         DefaultChecker, Notifier)
 from .Extensions.ExternalCache import ExternalCacheChecker
 
@@ -15,9 +15,9 @@ class HealthChecker:
     
     Config: Config
     CheckerTypes: List[Checker]
-    Cache: Dict[str, CacheEntry]
+    Cache: Dict[str, CheckResult]
 
-    def __init__(self, config: Config, extensions: List, cache: Dict[str, CacheEntry]):
+    def __init__(self, config: Config, extensions: List, cache: Dict[str, CheckResult]):
         self.Config = config
         self.CheckerTypes = [checkerType for checkerType in extensions if issubclass(checkerType, Checker) and not inspect.isabstract(checkerType)]
         self.Cache = cache
@@ -43,7 +43,7 @@ class HealthChecker:
         # special handling for ExternalCacheChecker
         for checker in checkers:
             if type(checker).__name__ == "ExternalCacheChecker": # not working: type(checker) is ExternalCacheChecker
-                checker.SetCacheEntry(self.Cache.get(checker.Identifier, None))
+                checker.SetCheckResult(self.Cache.get(checker.Identifier, None))
 
         # go
         results = [await checker.GetCheckResultAsync() for checker in checkers]
@@ -52,7 +52,7 @@ class HealthChecker:
 
             # put results into cache (where associated checker has an identifier)
             if "identifier" in checker.Settings:
-                self.Cache[checker.Settings["identifier"]] = CacheEntry(results[i], datetime.now())
+                self.Cache[checker.Settings["identifier"]] = results[i]
 
             # share result?
             if "share-method" in checker.Settings:

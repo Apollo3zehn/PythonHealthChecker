@@ -5,7 +5,7 @@ from typing import Dict
 import aiohttp
 from aiohttp.client import ClientResponseError
 
-from ..BaseTypes import CacheEntry, Checker, CheckResult
+from ..BaseTypes import Checker, CheckResult
 
 
 class HttpGetChecker(Checker):
@@ -13,7 +13,7 @@ class HttpGetChecker(Checker):
     Url: str
     Regex: str
 
-    Cache: Dict[str, CacheEntry]
+    Cache: Dict[str, CheckResult]
 
     def __init__(self, settings: Dict[str, str]):
         super().__init__(settings)
