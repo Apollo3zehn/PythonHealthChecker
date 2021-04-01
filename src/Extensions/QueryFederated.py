@@ -6,6 +6,7 @@ from urllib.parse import quote, urlparse
 from urllib.request import urlopen
 
 import aiohttp
+import iso8601
 from aiohttp.client import ClientResponseError
 from src.BaseTypes import CheckResultType
 
@@ -67,7 +68,7 @@ class PingV4Checker(Checker):
         notifiers = []
 
         checkResult = CheckResult(name, resultType, message, self.Notifiers)
-        checkResult.Created = datetime.fromisoformat(checkResultJson["created"])
+        checkResult.Created = iso8601.parse_date(checkResultJson["created"])
 
         if checkResult.AgeMinutes <= self.MaxAgeMinutes:
             return checkResult
