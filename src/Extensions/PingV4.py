@@ -1,7 +1,9 @@
 import os
+import platform
 from typing import Dict
 
 from ..BaseTypes import Checker, CheckResult
+
 
 class PingV4Checker(Checker):
     Type: str = "ping-v4"
@@ -21,7 +23,17 @@ class PingV4Checker(Checker):
         return f"Ping v4 ({self.Address})"
 
     async def DoCheckAsync(self) -> CheckResult:
-        success = not os.system('ping %s -n 1 > nul 2>&1' % (self.Address,))
+
+        system = platform.system()
+
+        if system == "Linux":
+            success = not os.system(f"ping {self.Address} -c 1 >/dev/null 2>&1")
+
+        elif system == "Windows":
+            success = not os.system(f"ping {self.Address} -n 1 > nul 2>&1")
+
+        else:
+            raise Exception(f"The platform '{system}' is not supported.")
 
         if success:
             
