@@ -21,13 +21,15 @@ class CheckResult:
     Name: str
     ResultType: CheckResultType
     Message: str
+    InfoUrl: str
     Notifiers: List[str]
     Created: datetime
 
-    def __init__(self, name: str, resultType: CheckResultType, message: str, notifiers: List[str]):
+    def __init__(self, name: str, resultType: CheckResultType, message: str, infoUrl: str, notifiers: List[str]):
         self.Name = name
         self.ResultType = resultType
         self.Message = message
+        self.InfoUrl = infoUrl
         self.Notifiers = notifiers
         self.Created = datetime.utcnow().replace(tzinfo=timezone.utc)
 
@@ -41,6 +43,7 @@ class CheckResult:
 
 class Checker(ABC):
 
+    InfoUrl: str
     Notifiers: List[str]
     Settings: Dict[str, str]
 
@@ -48,20 +51,27 @@ class Checker(ABC):
 
         self.Settings = settings
 
+        # url
+        if "info-url" in settings:
+            self.InfoUrl = settings["info-url"]
+        else:
+            self.InfoUrl = None
+
         # notifiers
         if "notifiers" in settings:
             self.Notifiers = [notifier.strip() for notifier in settings["notifiers"].split(",")]
         else:
             self.Notifiers = []
 
+
     def Success(self, message: str = "") -> CheckResult:
-        return CheckResult(self.GetName(), CheckResultType.Success, message, self.Notifiers)
+        return CheckResult(self.GetName(), CheckResultType.Success, message, self.InfoUrl, self.Notifiers)
 
     def Warning(self, message: str) -> CheckResult:
-        return CheckResult(self.GetName(), CheckResultType.Warning, message, self.Notifiers)
+        return CheckResult(self.GetName(), CheckResultType.Warning, message, self.InfoUrl, self.Notifiers)
 
     def Error(self, message: str) -> CheckResult:
-        return CheckResult(self.GetName(), CheckResultType.Error, message, self.Notifiers)
+        return CheckResult(self.GetName(), CheckResultType.Error, message, self.InfoUrl, self.Notifiers)
     
     async def GetCheckResultAsync(self) -> CheckResult:
         try:

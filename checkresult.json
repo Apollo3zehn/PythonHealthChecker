@@ -3,5 +3,6 @@
     "name": "MyJsonCheck",
     "resultType": 1,
     "message": "MyJsonCheck was successful",
+    "infoUrl": "https://github.com/Apollo3zehn/PythonHealthChecker",
     "created": "2021-03-31T14:37:47.337661+00:00"
 }

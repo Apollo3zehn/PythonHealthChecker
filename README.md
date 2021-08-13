@@ -79,11 +79,14 @@ address = www.test.org
 type = windows-service
 notifiers = my-notifier
 name = SysMain
+info-url = https://www.microsoft.com
 ```
 
 The line ```[Group 1]``` denotes the group name to help combining multiple checks into related units as you can see in the screenshot above.
 
 Both checks refer to the previously defined notifier named `my-notifier`. Whenever the check fails it is notified to all configured notifiers. You can comma-separate multiple notifiers like `my-notifer-1, my-notifier-2, ...`.
+
+The `info-url` is used to convert the check result's name into a clickable link. This might be useful to provide more information to the user.
 
 When your configuration file is complete, you can pass it to the app: ```--config <path to my config>```
 

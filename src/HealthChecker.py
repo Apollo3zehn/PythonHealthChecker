@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import json
 import os
@@ -6,8 +7,7 @@ from typing import Dict, List
 
 import aiohttp
 
-from .BaseTypes import (Checker, CheckResult, Config,
-                        DefaultChecker, Notifier)
+from .BaseTypes import Checker, CheckResult, Config, DefaultChecker, Notifier
 from .Extensions.ExternalCache import ExternalCacheChecker
 
 
@@ -46,7 +46,7 @@ class HealthChecker:
                 checker.SetCheckResult(self.Cache.get(checker.Identifier, None))
 
         # go
-        results = [await checker.GetCheckResultAsync() for checker in checkers]
+        results = await asyncio.gather(*[checker.GetCheckResultAsync() for checker in checkers])
 
         for i, checker in enumerate(checkers):
 

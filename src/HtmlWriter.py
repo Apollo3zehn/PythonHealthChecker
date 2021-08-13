@@ -95,7 +95,11 @@ class HtmlWriter:
             content = f'<div class="check-icon"><i class="fas fa-volume-mute"></i></div>'
 
         content += '<div class="check-wrapper">'
-        content += f'<div class="check-type">{checkResult.Name}</div>'
+
+        if (checkResult.InfoUrl is None):
+            content += f'<div class="check-type">{checkResult.Name}</div>'
+        else:
+            content += f'<div class="check-type"><a href="{checkResult.InfoUrl}">{checkResult.Name}</a></div>'
 
         if checkResult.Message != "":
             content += f'<div class="check-message">{checkResult.Message}</div>'

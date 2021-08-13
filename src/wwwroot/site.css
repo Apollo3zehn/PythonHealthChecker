@@ -1,3 +1,7 @@
+:root {
+    --color-text-link: rgb(87, 165, 254);
+}
+
 html,body, #st-full-pg {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     height: 100%;
@@ -17,6 +21,15 @@ h1 {
 
 h2 {
     font-size: 1.5rem;
+}
+
+a {
+	color: var(--color-text-link);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
 .headline {

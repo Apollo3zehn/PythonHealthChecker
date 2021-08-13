@@ -36,6 +36,7 @@ class API:
                 "name": checkResult.Name,
                 "resultType": checkResult.ResultType.value,
                 "message": checkResult.Message,
+                "infoUrl": checkResult.InfoUrl,
                 "created": checkResult.Created.isoformat()
             }
 
@@ -57,9 +58,10 @@ class API:
         name = checkResultJson["name"]
         resultType = CheckResultType(int(checkResultJson["resultType"]))
         message = checkResultJson["message"]
+        infoUrl = checkResultJson["infoUrl"]
         notifiers = []
 
-        checkResult = CheckResult(name, resultType, message, notifiers)
+        checkResult = CheckResult(name, resultType, message, infoUrl, notifiers)
 
         # populate cache
         self.Cache[identifier] = checkResult

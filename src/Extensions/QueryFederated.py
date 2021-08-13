@@ -65,9 +65,10 @@ class PingV4Checker(Checker):
         name = checkResultJson["name"]
         resultType = CheckResultType(int(checkResultJson["resultType"]))
         message = checkResultJson["message"]
+        infoUrl = checkResultJson["infoUrl"]
         notifiers = []
 
-        checkResult = CheckResult(name, resultType, message, self.Notifiers)
+        checkResult = CheckResult(name, resultType, message, infoUrl, self.Notifiers)
         checkResult.Created = iso8601.parse_date(checkResultJson["created"])
 
         if checkResult.AgeMinutes <= self.MaxAgeMinutes:
