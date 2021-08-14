@@ -28,6 +28,10 @@ class ExternalCacheChecker(Checker):
 
             if self.CheckResult.AgeMinutes <= self.MaxAgeMinutes:
                 self.CheckResult.Notifiers = self.Notifiers
+
+                if self.CheckResult.InfoUrl is None:
+                    self.CheckResult.InfoUrl = self.InfoUrl
+
                 return self.CheckResult
                 
             else:

@@ -68,6 +68,9 @@ class PingV4Checker(Checker):
         infoUrl = checkResultJson["infoUrl"]
         notifiers = []
 
+        if infoUrl is None:
+            infoUrl = self.InfoUrl
+            
         checkResult = CheckResult(name, resultType, message, infoUrl, self.Notifiers)
         checkResult.Created = iso8601.parse_date(checkResultJson["created"])
 
