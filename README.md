@@ -54,8 +54,8 @@ The sample configuration (```testconfig.conf```) is part of this project and onl
 It is recommended to create your own configuration file and pass the path to the app via ```--config <path to my config>```. This file should start with the shown ```# notifications``` section to setup the smtp / e-mail notification. This section is optional and only required when you would like to get notified by mail:
 
 ```ini
-# notifications
-[my-notifier]
+[notifiers]
+id = my-notifier
 type = smtp
 security = starttls
 server = xxx.net
@@ -69,13 +69,13 @@ subject = Health-Check Report
 No matter if you have a ```# notifications``` section or not, the configuration file should contain a ```# checks``` section to configure all desired checks. In the sample configuration below, the first check is a ping to address ```www.test.org``` and the second check ensures that a certain windows service is available and started.
 
 ```ini
-# checks
-[Group 1]
+[checks]
+group = Group 1
 type = ping-v4
 notifiers = my-notifier
 address = www.test.org
 
-[Group 1]
+group = Group 1
 type = windows-service
 notifiers = my-notifier
 name = SysMain
@@ -133,17 +133,17 @@ When you are done, copy the new python file into the ```./src/Extensions``` fold
 With your new checker in place, you should update your configuration file like this to define one or multiple checks:
 
 ```ini
-# notifications
+[notifiers]
 ...
 
-# checks
-[My Group]
+[checks]
+group = My Group
 type = sample-checker
 notifiers = my-notifier
 my-option1 = some value
 my-option2 = some value
 
-[My Group]
+group = My Group
 type = sample-checker
 notifiers = my-notifier
 my-option1 = some value
@@ -205,23 +205,23 @@ The method ```NotifyAsync()``` is required and called by the base class when the
 
 When you are done, copy the new python file into the ```./src/Extensions``` folder. If you are not restarting the app, it will instead be (re)loaded automatically during the next check cycle.
 
-With your new notifier in place, you should update your configuration file like this to define one or multiple notifications:
+With your new notifier in place, you should update your configuration file like this to define one or multiple notifiers:
 
 ```ini
-# notifications
-[my-notifier]
+[notifiers]
+id = my-notifier1
 type = sample-notifier
 my-option1 = some value
 my-option2 = some value
 
-[my-notifier]
+id = my-notifier-2
 type = sample-notifier
 my-option1 = some other value
 my-option2 = some other value
 
 ...
 
-# checks
+[checks]
 ...
 ```
 
@@ -255,8 +255,8 @@ Invoke-RestMethod `
 The `identifier` is a unique string to identify the check result. The health checker will only pick up check results with known identifiers. To make these known to the health checker, configure a new check of type `external-cache` and provide the `identifier` and `max-age-minutes` values:
 
 ```ini
-# checks
-[Group 1]
+[checks]
+group = Group 1
 type = external-cache
 identifier = MyIdentifier
 max-age-minutes = 10
@@ -268,8 +268,8 @@ max-age-minutes = 10
 It is also possible to run a second health checker and push its result to the main health checker. In that case define the `external-cache` check(s) as described previously in your main health checker and then just add the following values to any check in the second health checker that should share its result:
 
 ```ini
-# checks
-[Group 1]
+[checks]
+group = Group 1
 type = ping-v4
 ...
 share-method = http-post
