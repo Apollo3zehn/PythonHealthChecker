@@ -1,8 +1,10 @@
 import argparse
 import asyncio
+import logging
 import os
 import pathlib
 import sys
+from logging import Logger
 from threading import Thread
 from typing import Dict
 
@@ -17,7 +19,7 @@ from src.NotifyManager import NotifyManager
 from src.Web import API, Application
 
 
-async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int, cache: Dict[str, CheckResult]):
+async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: int, cache: Dict[str, CheckResult], logger: Logger):
 
     folderPath = Utils.PrepareLocalAppdata()
     htmlFilePath = os.path.join(folderPath, "index.html")
@@ -26,28 +28,29 @@ async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: 
     while True:
 
         try:
-            # load config
+
+            logger.info("Load config.")
             config = ConfigReader().Read(configFilePath)
 
-            # load extensions
+            logger.info("Load extensions.")
             extensions = Utils.LoadExtensions()
 
-            # check health
-            healthChecker = HealthChecker(config, extensions, cache)
+            logger.info("Check health.")
+            healthChecker = HealthChecker(config, extensions, cache, logger)
             result = await healthChecker.CheckHealthAsync()
 
-            # throttle notifications
+            logger.info("Throttle notifications.")
             filteredResult = Utils.ThrottleNotifications(result)
 
-            # notify
-            notifyManager = NotifyManager(config, extensions)
+            logger.info("Notify.")
+            notifyManager = NotifyManager(config, extensions, logger)
             await notifyManager.NotifyAsync(filteredResult)
 
-            # update html
+            logger.info("Update html.")
             htmlWriter.WriteResult(result)
             
         except Exception as ex:
-            print(ex)
+            logger.error(msg="An error occured.", exc_info=ex)
 
         await asyncio.sleep(checkInterval)
 
@@ -58,7 +61,7 @@ def handle_error():
         f"<html><body>{_cperror.format_exc()}</body></html>"
     ]
 
-def Serve(host: str, port: int, cache: Dict[str, CheckResult]):
+def Serve(host: str, port: int, cache: Dict[str, CheckResult], logger: Logger):
 
     # mount "/"
     folderPath = Utils.PrepareLocalAppdata()
@@ -86,10 +89,10 @@ def Serve(host: str, port: int, cache: Dict[str, CheckResult]):
         }   
     }
 
-    cherrypy.tree.mount(API(cache), "/api/checkresults", apiConfig)
+    cherrypy.tree.mount(API(cache, logger), "/api/checkresults", apiConfig)
 
     # run
-    print(f"Starting web server on address {host}:{port}.")
+    logger.info(f"Starting web server on address {host}:{port}.")
 
     cherrypy.config.update({
         "engine.autoreload.on" : False,
@@ -114,15 +117,26 @@ async def Main():
 
     args = parser.parse_args()
 
+    # logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("Health Checker")
+
+    # exception handling
+    def global_except_hook(exctype, value, traceback):
+        logger.error("An unhandled exception occured.", exc_info=value)
+        sys.__excepthook__(exctype, value, traceback)
+
+    sys.excepthook = global_except_hook
+
     # create check result cache
     cache = {}
 
     # run web server
-    thread = Thread(target=Serve, args=(args.host, args.port, cache,))
+    thread = Thread(target=Serve, args=(args.host, args.port, cache, logger,))
     thread.start()
 
     # run health checks
-    await HealthCheck(args.config, args.check_interval, args.refresh_interval, cache)
+    await HealthCheck(args.config, args.check_interval, args.refresh_interval, cache, logger)
     
 # run main task
 asyncio.run(Main())

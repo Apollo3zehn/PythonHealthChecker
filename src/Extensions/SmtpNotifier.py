@@ -32,24 +32,19 @@ class SmtpNotifier(Notifier):
 
         with smtplib.SMTP(self.Server, self.Port) as server:
 
-            try:
+            if self.Security == "starttls":
+                context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+                server.starttls(context=context)
+                server.login(self.From, self.Password)
 
-                if self.Security == "starttls":
-                    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-                    server.starttls(context=context)
-                    server.login(self.From, self.Password)
+            message = EmailMessage()
+            message.set_content("abc")
+            message['Subject'] = self.Subject
+            message['From'] = self.From
+            message['To'] = self.To
+            message.add_alternative(self.GetHtmlMessage(checkResult), subtype='html')
 
-                message = EmailMessage()
-                message.set_content("abc")
-                message['Subject'] = self.Subject
-                message['From'] = self.From
-                message['To'] = self.To
-                message.add_alternative(self.GetHtmlMessage(checkResult), subtype='html')
-
-                server.send_message(message)
-
-            except Exception as e:
-                print(e)
+            server.send_message(message)
 
     def GetHtmlMessage(self, result: Dict[str, List[CheckResult]]) -> str:
 
