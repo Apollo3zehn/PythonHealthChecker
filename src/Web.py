@@ -69,5 +69,5 @@ class API:
         checkResult = CheckResult(name, resultType, message, infoUrl, notifiers)
 
         # populate cache
-        self.Logger(f"Fill cache with check result {identifier} (received via HTML POST).")
+        self.Logger.info(f"Fill cache with check result {identifier} (received via HTML POST).")
         self.Cache[identifier] = checkResult

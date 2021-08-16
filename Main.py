@@ -50,7 +50,7 @@ async def HealthCheck(configFilePath: str, checkInterval: int, refreshInterval: 
             htmlWriter.WriteResult(result)
             
         except Exception as ex:
-            logger.error(msg="An error occured.", exc_info=ex)
+            logger.error(msg=str(ex), exc_info=ex)
 
         await asyncio.sleep(checkInterval)
 

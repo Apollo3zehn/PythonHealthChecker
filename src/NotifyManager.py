@@ -35,7 +35,7 @@ class NotifyManager:
                 try:
                     await notifier.NotifyAsync(filteredCheckResult)
                 except Exception as ex:
-                    self.Logger.error(msg="An error occured.", exc_info=ex)
+                    self.Logger.error(msg=str(ex), exc_info=ex)
 
     def _getNotifier(self, notify) -> Notifier:
         return next((notifier(notify) for notifier in self.NotifierTypes if notifier.Type == notify["type"]))
