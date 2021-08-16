@@ -84,9 +84,15 @@ class SmtpNotifier(Notifier):
 
     def _getContent(self, checkResult: CheckResult) -> str:
 
+        if (checkResult.InfoUrl is None or checkResult.InfoUrl == ''):
+            linkedName = checkResult.Name
+
+        else:
+            linkedName = f'<a href="{checkResult.InfoUrl}" style="color: rgb(87, 165, 254); text-decoration: none">{checkResult.Name}</a>'
+
         renderFragment = f"""
 <div class="check-result" style="margin-bottom: 10px;">
-    <h4 class="check-type" style="margin-bottom: 5px; margin-left: 20px;">{checkResult.Name}</h4>
+    <h4 class="check-type" style="margin-bottom: 5px; margin-left: 20px;">{linkedName}</h4>
     <div class="check-message" style="margin-left: 40px;">{checkResult.Message}</div>
 </div>
 """
