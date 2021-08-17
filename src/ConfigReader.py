@@ -61,8 +61,10 @@ class ConfigReader():
                 if not "group" in check:
                     check["group"] = "Default"
 
-        sortedChecks = sorted(checks, key=lambda check: check["group"])
-        groupedCheckers = {key:list(group) for key, group in groupby(sortedChecks, key = lambda check: check["group"])}
+        groupedCheckers = {}
+
+        for check in checks: 
+            groupedCheckers.setdefault(check["group"], []).append(check)
 
         return Config(notifiers, groupedCheckers)
 
