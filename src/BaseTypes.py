@@ -77,7 +77,12 @@ class Checker(ABC):
         try:
             return await self.DoCheckAsync()
         except Exception as ex:
-            return self.Error(str(ex))
+
+            try:
+                return self.Error(str(ex))
+
+            except Exception as ex2:
+                return CheckResult("Failed check", CheckResultType.Error, str(ex2), self.InfoUrl, self.Notifiers)
 
     @abstractmethod
     def GetName(self) -> str:

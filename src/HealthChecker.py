@@ -33,8 +33,17 @@ class HealthChecker:
         return checkResult
 
     async def _doChecksAsync(self, checks: list) -> List[CheckResult]:
+
         self.Logger.info(f"Instantiate checkers.")
-        checkers = [self._getChecker(check) for check in checks]
+        checkers = []
+
+        for check in checks:
+
+            try:
+                checkers.append(self._getChecker(check))
+
+            except Exception as ex:
+                self.Logger.error(f"Unable to instantiate checker for check {check['type']} of group {check['group']}.", exc_info=ex)
 
         self.Logger.info(f"Clean up cache.")
         keysToDelete = []
