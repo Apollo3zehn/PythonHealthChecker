@@ -35,7 +35,7 @@ class CheckResult:
 
     @property
     def AgeMinutes(self):
-        return (datetime.utcnow().replace(tzinfo=timezone.utc) - self.Created).days * 1440
+        return (datetime.utcnow().replace(tzinfo=timezone.utc) - self.Created).total_seconds()/60
 
     @property
     def HasError(self):
